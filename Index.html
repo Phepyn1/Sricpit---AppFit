@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#FFC107" />
+  <title>CaféApp</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body { margin: 0; font-family: 'Roboto'; background: #1d1d1d; }
+    .app{height:100%;width: 100%;}
+    .home header { background: #FFC107; color: white; padding: 20px; text-align: center; font-size:32px; font-weight: 900; }
+    main {
+      color: white;
+      padding-bottom: 90px;
+    }
+    header {
+      background: #FFC107; 
+      color: white;
+      text-align: center;
+      font-style: oblique;
+      font-size: 32px;
+      padding: 5px;
+      font-weight: bolder;
+    }
+
+    .treino-nav {
+      display: flex;
+      position: relative;
+      background:none;
+      padding: 10px 0;
+      width: 100%;
+    }
+
+    .nav-btn-treino{
+      flex: 1;
+      text-align: center;
+      text-decoration: none;
+      color: #078aff;
+      font-size: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 0px 0;
+      border:none;
+      z-index: 1;
+      background:none;
+    }
+
+    .bottom-nav {
+      background-color:#FFC107;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      height: 90px;
+      box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-btn {
+      flex: 1;
+      text-align: center;
+      text-decoration: none;
+      color: #FFC107;
+      font-size: 2.2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 0px 0;
+      border:none;
+      z-index: 1;
+      background-color:#000;
+      cursor: pointer;
+    }
+
+    .material-icons {
+      font-size: 2rem;
+    }
+
+    .nav-btn span {
+      margin-top: 2px;
+    }
+
+    .active{
+      font-weight: bold;
+    }
+
+    .nav-indicator {
+      position: absolute;
+      top: 0;               
+      width: 33.33%;
+      height: 6px;          
+      background: #FFC107;
+      transition: left 0.3s ease;
+      z-index: 2;            
+    }
+
+    .nav-indicator-treino {
+      position: absolute;
+      bottom: 0;               
+      width: 20%;
+      height: 0.5rem;          
+      background: #078aff;
+      transition: left 0.3s ease;
+      z-index: 2;            
+      border-radius: 0 0 6px 6px;
+    }
+
+    .card {
+      background-color: #3b3b3b;
+      border-radius: 16px;
+      border: none;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      color:white;
+      font-size: 3rem;
+    }
+    .card p
+    {
+      margin-top: 10px;
+    }
+    .card-tile{
+      font-weight: 900;
+      font-style: initial;
+      font-size: 4rem;
+    }
+    .card-btn{
+      width: 100%;
+      color:#FFC107;
+      background: none;
+      border-color: #FFC107;
+      font-size: 3rem;
+      border-radius: 10px;
+    }
+
+    .card-btn:hover
+    {
+      background: #FFC107;
+      color: white;
+    }
+
+    .timer-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer-modal {
+      color:white;
+      background-color: #1e1e1e;
+      padding: 2rem;
+      border-radius: 16px;
+      text-align: center;
+      width: 300px;
+      position: relative;
+    }
+
+    .timer-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    .timer-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: auto;
+    }
+
+    .timer-svg {
+      transform: rotate(-90deg);
+    }
+
+    .timer-circle-bg {
+      fill: none;
+      stroke: #333;
+      stroke-width: 10;
+    }
+
+    .timer-circle {
+      fill: none;
+      stroke: #ff7d07;
+      stroke-width: 10;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    .timer-text {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.2rem;
+      color: #fff;
+    }
+
+  </style>
+</head>
+<body>
+  <div id="app" class="app">
+    <main>
+      <!-- Home -->
+      <div class="home" v-if="screen === 'home'">
+        <header>
+          <h1>Sfit</h1>
+        </header>
+        <h2>Bem-vindo de volta!</h2>
+        <p>Preparada para treinar hoje?</p>
+      </div>
+
+      <!-- Menu -->
+      <div class="treinos" v-if="screen === 'treinos'">
+        <header>SF</header>
+        <h1>Treinos:</h1>
+        <nav class="treino-nav">
+          <div class="nav-indicator-treino" :style="{ left: activeIndexD * 20 + '%' }"></div>
+          <button 
+            v-for="(item, index) in navDias" 
+            :key="item.dia"
+            class="nav-btn-treino" 
+            :class="{ active: activeIndexD === index }"
+            @click="selecionarDia(index, item.label)"
+          >
+            {{ item.label }}
+          </button>
+        </nav>
+
+        <div id="resultado">
+          <div v-if="exercicios.length === 0" style="margin-top:1rem;">Selecione um dia para carregar os treinos.</div>
+          <div v-for="(ex, i) in exercicios" :key="i" class="card">
+            <p class="card-tile">{{ ex[1] }}</p>
+            <p>
+              Séries: <strong>{{ ex[2] }}</strong><br>
+              Reps: <strong>{{ ex[3] }}</strong><br>
+              Carga: <strong>{{ ex[4] }}</strong><br>
+              Obs: {{ ex[5] || '-' }}<br>
+              Descanso: <strong>{{ ex[6] || 0 }}s</strong>
+            </p>
+            <button 
+              class="card-btn" 
+              :disabled="descansandoIndex === i"
+              @click="descansar(ex[6] || 0, i)"
+            >
+              Iniciar descanso
+            </button>
+            <div class="text-center" :id="'timer-' + i"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contato -->
+      <div v-if="screen === 'contato'">
+        <h2>Contato</h2>
+        <p>Fale com a gente via <a href="https://wa.me/5511999999999">WhatsApp</a>.</p>
+      </div>
+    </main>
+
+    <div class="bottom-nav">
+      <div class="nav-indicator" :style="{ left: activeIndex * 33.33 + '%' }"></div>
+      <button 
+        v-for="(item, index) in navItems" 
+        :key="item.screen"
+        class="nav-btn" 
+        :class="{ active: screen === item.screen }"
+        @click="trocarTela(index, item.screen)"
+      >
+        <span class="material-icons">{{ item.icon }}</span>
+        <span>{{ item.label }}</span>
+      </button>
+    </div>
+
+    <audio id="alarm" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+
+    <div v-if="descansandoIndex !== null" class="timer-overlay">
+      <div class="timer-modal">
+        <button class="timer-close" @click="fecharTimer" title="Fechar">×</button>
+        <h4>Descanso</h4>
+        <div class="timer-container">
+          <svg class="timer-svg" width="120" height="120">
+            <circle class="timer-circle-bg" cx="60" cy="60" r="50" />
+            <circle class="timer-circle" cx="60" cy="60" r="50"
+              :stroke-dasharray="circunferencia" 
+              :stroke-dashoffset="offset"
+            />
+          </svg>
+          <div class="timer-text">{{ restante }}</div>
+        </div>
+              <button 
+          v-if="tempoFinalizado" 
+          @click="fecharTimer"
+          style="margin-top: 1rem; padding: 10px 20px; font-size: 1.2rem; cursor: pointer;background-color:#FFC107;border-radius: 10px;"
+        >
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+    createApp({
+      data() {
+        return {
+          screen: 'home',
+          activeIndex: 0,
+          activeIndexD: 0,
+          navItems: [
+            { screen: 'home', icon: 'home', label: 'Home' },
+            { screen: 'treinos', icon: 'fitness_center', label: 'Treino' },
+            { screen: 'contato', icon: 'contact_support', label: 'Contato' }
+          ],
+          navDias: [
+            { dia: 'Segunda', label: 'Segunda' },
+            { dia: 'Terça', label: 'Terça' },
+            { dia: 'Quarta', label: 'Quarta' },
+            { dia: 'Quinta', label: 'Quinta' },
+            { dia: 'Sexta', label: 'Sexta' },
+          ],
+          exercicios: [],
+          descansandoIndex: null,
+          restante: 0,
+          intervalId: null,
+          raio: 50,
+          circunferencia: 2 * Math.PI * 50,
+          offset: 0,
+          tempoFinalizado: false,
+        };
+      },
+      methods: {
+        trocarTela(index, screen) {
+          this.screen = screen;
+          this.activeIndex = index;
+          this.exercicios = [];
+          this.descansandoIndex = null;
+          if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+          }
+        },
+        selecionarDia(index, label) {
+          this.activeIndexD = index;
+          this.exercicios = [];
+          this.descansandoIndex = null;
+          if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+          }
+          // Chamada ao Apps Script
+          google.script.run.withSuccessHandler(this.mostrarExercicios).getTreinosPorDia(label);
+        },
+        mostrarExercicios(exercicios) {
+          if (!Array.isArray(exercicios)) exercicios = [];
+          this.exercicios = exercicios;
+        },
+  descansar(segundos, i) {
+    if (!segundos || segundos <= 0) {
+      alert("Sem tempo de descanso definido.");
+      return;
+    }
+    this.descansandoIndex = i;
+    this.restante = segundos;
+    this.offset = 0;
+    this.tempoFinalizado = false;  // reseta estado
+
+    if (this.intervalId) clearInterval(this.intervalId);
+
+    this.intervalId = setInterval(() => {
+      this.restante--;
+      this.offset = this.circunferencia * (1 - this.restante / segundos);
+      if (this.restante <= 0) {
+        clearInterval(this.intervalId);
+        this.intervalId = null;
+        this.restante = 0;
+        this.tempoFinalizado = true;  // ativa botão de confirmação
+        document.getElementById("alarm").play();
+        // Não fecha modal automaticamente nem zera descansandoIndex
+      }
+    }, 1000);
+  },
+  fecharTimer() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+    this.descansandoIndex = null;
+    this.tempoFinalizado = false; // resetar estado
+      }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
